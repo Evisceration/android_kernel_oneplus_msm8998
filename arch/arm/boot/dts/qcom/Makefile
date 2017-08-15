@@ -102,18 +102,52 @@ dtb-$(CONFIG_ARCH_MSM8996) += msm8996-v2-pmi8994-cdp.dtb \
 	apq8096-v3-pmi8996-mdm9x55-slimbus-mtp.dtb \
 	apq8096-v3-pmi8996-dragonboard.dtb
 
+dtb-$(CONFIG_ARCH_MSM8998) += msm8998-sim.dtb \
+	msm8998-rumi.dtb \
+	msm8998-cdp.dtb \
+	msm8998-mtp.dtb \
+	msm8998-qrd.dtb \
+	msm8998-v2-sim.dtb \
+	msm8998-v2-rumi.dtb \
+	msm8998-v2-mtp.dtb \
+	msm8998-v2-cdp.dtb \
+	msm8998-v2-qrd.dtb \
+	msm8998-qrd-skuk.dtb \
+	msm8998-v2-qrd-skuk.dtb \
+	msm8998-qrd-vr1.dtb \
+	msm8998-v2-qrd-vr1.dtb \
+	msm8998-v2-qrd-skuk-evt3.dtb \
+	msm8998-v2-qrd-skuk-hdk.dtb \
+	apq8998-mtp.dtb \
+	apq8998-cdp.dtb \
+	apq8998-v2-mtp.dtb \
+	apq8998-v2-cdp.dtb \
+	apq8998-v2-qrd.dtb \
+	apq8998-v2-qrd-skuk-hdk.dtb \
+	msm8998-v2.1-mtp.dtb \
+	msm8998-v2.1-mtp-4k-display.dtb \
+	msm8998-v2.1-cdp.dtb \
+	msm8998-v2.1-qrd.dtb \
+	apq8998-v2.1-mtp.dtb \
+	apq8998-v2.1-cdp.dtb \
+	apq8998-v2.1-qrd.dtb \
+	apq8998-v2.1-mediabox.dtb \
+	msm8998-v2.1-interposer-sdm660-cdp.dtb \
+	msm8998-v2.1-interposer-sdm660-mtp.dtb \
+	msm8998-v2.1-interposer-sdm660-qrd.dtb
 
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-evb.dtb
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-v2.1-evb.dtb
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-v2.1-t0.dtb
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-v2.1-t1.dtb
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-v2.1-evt1.dtb
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-v2.1-evt2.dtb
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-v2.1-evt3.dtb
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-v2.1-dvt1.dtb
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-v2.1-pvt.dtb
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-v2.1-pvt1.dtb
-dtb-$(CONFIG_ARCH_MSM8998) += cheeseburger-v2.1-backup.dtb
+dtb-$(CONFIG_ARCH_MSM8998) += \
+	cheeseburger-evb.dtb \
+	cheeseburger-v2.1-backup.dtb \
+	cheeseburger-v2.1-dvt1.dtb \
+	cheeseburger-v2.1-evb.dtb \
+	cheeseburger-v2.1-evt1.dtb \
+	cheeseburger-v2.1-evt2.dtb \
+	cheeseburger-v2.1-evt3.dtb \
+	cheeseburger-v2.1-pvt.dtb \
+	cheeseburger-v2.1-pvt1.dtb \
+	cheeseburger-v2.1-t0.dtb \
+	cheeseburger-v2.1-t1.dtb
 
 dtb-$(CONFIG_ARCH_MSMHAMSTER) += msmhamster-rumi.dtb
 
@@ -141,11 +175,13 @@ dtb-$(CONFIG_ARCH_SDM660) += sdm660-sim.dtb \
 	sda660-pm660a-cdp.dtb \
 	sda660-pm660a-mtp.dtb \
 	sda660-pm660a-rcm.dtb \
+	sda660-pm660a-qrd-hdk.dtb \
 	sdm660-headset-jacktype-no-cdp.dtb \
 	sdm660-headset-jacktype-no-rcm.dtb \
 	sdm660-pm660a-headset-jacktype-no-cdp.dtb \
 	sdm660-pm660a-headset-jacktype-no-rcm.dtb \
 	sdm660-usbc-audio-mtp.dtb \
+	sdm660-usbc-audio-rcm.dtb \
 	sdm658-mtp.dtb \
 	sdm658-cdp.dtb \
 	sdm658-rcm.dtb \
@@ -171,6 +207,7 @@ dtb-$(CONFIG_ARCH_SDM630) += sdm630-rumi.dtb \
 	sdm630-pm660a-rumi.dtb \
 	sdm630-mtp.dtb \
 	sdm630-usbc-audio-mtp.dtb \
+	sdm630-usbc-audio-rcm.dtb \
 	sdm630-cdp.dtb \
 	sdm630-rcm.dtb \
 	sdm630-internal-codec-mtp.dtb \
@@ -189,6 +226,7 @@ dtb-$(CONFIG_ARCH_SDM630) += sdm630-rumi.dtb \
 	sda630-pm660a-mtp.dtb \
 	sda630-pm660a-cdp.dtb \
 	sda630-pm660a-rcm.dtb \
+	sda630-pm660a-qrd-hdk.dtb \
 	sdm630-headset-jacktype-no-cdp.dtb \
 	sdm630-headset-jacktype-no-rcm.dtb \
 	sdm630-pm660a-headset-jacktype-no-cdp.dtb \

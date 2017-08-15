@@ -1505,7 +1505,9 @@ static void socinfo_select_format(void)
 	}
 }
 
+#ifdef CONFIG_ONEPLUS_PROJECT_INFO
 volatile uint32_t chip_serial_num;
+#endif
 
 int __init socinfo_init(void)
 {
@@ -1535,8 +1537,10 @@ int __init socinfo_init(void)
 	socinfo_print();
 	arch_read_hardware_id = msm_read_hardware_id;
 
+#ifdef CONFIG_ONEPLUS_PROJECT_INFO
 	/*read serial number*/
 	chip_serial_num = socinfo_get_serial_number();
+#endif
 
 	socinfo_init_done = true;
 

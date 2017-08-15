@@ -81,7 +81,6 @@ MODULE_PARM_DESC(cpu_to_affin, "affin usb irq to this cpu");
 #define CGCTL_REG		(QSCRATCH_REG_OFFSET + 0x28)
 #define PWR_EVNT_IRQ_STAT_REG    (QSCRATCH_REG_OFFSET + 0x58)
 #define PWR_EVNT_IRQ_MASK_REG    (QSCRATCH_REG_OFFSET + 0x5C)
-#define QSCRATCH_USB30_STS_REG	(QSCRATCH_REG_OFFSET + 0xF8)
 
 #define PWR_EVNT_POWERDOWN_IN_P3_MASK		BIT(2)
 #define PWR_EVNT_POWERDOWN_OUT_P3_MASK		BIT(3)
@@ -765,6 +764,7 @@ static int dwc3_msm_ep_queue(struct usb_ep *ep,
 	return 0;
 
 err:
+	list_del(&req_complete->list_item);
 	spin_unlock_irqrestore(&dwc->lock, flags);
 	kfree(req_complete);
 	return ret;
@@ -1928,19 +1928,8 @@ static int dwc3_msm_prepare_suspend(struct dwc3_msm *mdwc)
 		if (reg & PWR_EVNT_LPM_IN_L2_MASK)
 			break;
 	}
-	if (!(reg & PWR_EVNT_LPM_IN_L2_MASK)) {
-		dbg_event(0xFF, "PWR_EVNT_LPM",
-			dwc3_msm_read_reg(mdwc->base, PWR_EVNT_IRQ_STAT_REG));
-		dbg_event(0xFF, "QUSB_STS",
-			dwc3_msm_read_reg(mdwc->base, QSCRATCH_USB30_STS_REG));
-		/* Mark fatal error for host mode or USB bus suspend case */
-		if (mdwc->in_host_mode || (mdwc->vbus_active
-			&& mdwc->otg_state == OTG_STATE_B_SUSPEND)) {
-			queue_work(mdwc->dwc3_wq, &mdwc->resume_work);
-			dev_err(mdwc->dev, "could not transition HS PHY to L2\n");
-			return -EBUSY;
-		}
-	}
+	if (!(reg & PWR_EVNT_LPM_IN_L2_MASK))
+		dev_err(mdwc->dev, "could not transition HS PHY to L2\n");
 
 	/* Clear L2 event bit */
 	dwc3_msm_write_reg(mdwc->base, PWR_EVNT_IRQ_STAT_REG,
@@ -2064,6 +2053,9 @@ static int dwc3_msm_suspend(struct dwc3_msm *mdwc)
 	/* Disable core irq */
 	if (dwc->irq)
 		disable_irq(dwc->irq);
+
+	if (work_busy(&dwc->bh_work))
+		dbg_event(0xFF, "pend evt", 0);
 
 	/* disable power event irq, hs and ss phy irq is used as wake up src */
 	disable_irq(mdwc->pwr_event_irq);
@@ -3329,16 +3321,19 @@ static void msm_dwc3_perf_vote_work(struct work_struct *w)
 	struct dwc3_msm *mdwc = container_of(w, struct dwc3_msm,
 						perf_vote_work.work);
 	struct dwc3 *dwc = platform_get_drvdata(mdwc->dwc3);
-	static unsigned long	last_irq_cnt;
 	bool in_perf_mode = false;
+	int latency = mdwc->pm_qos_latency;
 
-	if (dwc->irq_cnt - last_irq_cnt >= PM_QOS_THRESHOLD)
+	if (!latency)
+		return;
+
+	if (dwc->irq_cnt - dwc->last_irq_cnt >= PM_QOS_THRESHOLD)
 		in_perf_mode = true;
 
-	//pr_debug("%s: in_perf_mode:%u, interrupts in last sample:%lu\n",
-	//	 __func__, in_perf_mode, (dwc->irq_cnt - last_irq_cnt));
+	pr_debug("%s: in_perf_mode:%u, interrupts in last sample:%lu\n",
+		 __func__, in_perf_mode, (dwc->irq_cnt - dwc->last_irq_cnt));
 
-	last_irq_cnt = dwc->irq_cnt;
+	dwc->last_irq_cnt = dwc->irq_cnt;
 	msm_dwc3_perf_vote_update(mdwc, in_perf_mode);
 	schedule_delayed_work(&mdwc->perf_vote_work,
 			msecs_to_jiffies(1000 * PM_QOS_SAMPLE_SEC));
@@ -3605,7 +3600,8 @@ static int dwc3_msm_gadget_vbus_draw(struct dwc3_msm *mdwc, unsigned mA)
 		}
 	}
 
-	power_supply_get_property(mdwc->usb_psy, POWER_SUPPLY_PROP_TYPE, &pval);
+	power_supply_get_property(mdwc->usb_psy,
+			POWER_SUPPLY_PROP_REAL_TYPE, &pval);
 	if (pval.intval != POWER_SUPPLY_TYPE_USB)
 		return 0;
 

@@ -1633,7 +1633,7 @@ static void __trace_find_cmdline(int pid, char comm[])
 
 	map = savedcmd->map_pid_to_cmdline[pid];
 	if (map != NO_CMDLINE_MAP)
-		strcpy(comm, get_saved_cmdlines(map));
+		strlcpy(comm, get_saved_cmdlines(map), TASK_COMM_LEN - 1);
 	else
 		strcpy(comm, "<...>");
 }
@@ -2105,7 +2105,7 @@ void trace_printk_init_buffers(void)
 		return;
 
 	/* trace_printk() is for debug use only. Don't use it in production. */
-	#if 0
+
 	pr_warning("\n");
 	pr_warning("**********************************************************\n");
 	pr_warning("**   NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE   **\n");
@@ -2120,7 +2120,7 @@ void trace_printk_init_buffers(void)
 	pr_warning("**                                                      **\n");
 	pr_warning("**   NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE   **\n");
 	pr_warning("**********************************************************\n");
-	#endif
+
 	/* Expand the buffers to set size */
 	tracing_update_buffers();
 

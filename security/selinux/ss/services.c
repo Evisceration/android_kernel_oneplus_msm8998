@@ -1422,11 +1422,8 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
 
 	/* Copy the string so that we can modify the copy as we parse it. */
 	scontext2 = kmalloc(scontext_len + 1, gfp_flags);
-	if (!scontext2) {
-		printk(KERN_ERR "%s: kmalloc failed for \'%s\' with len: %u\n",
-			__func__, scontext, scontext_len);
+	if (!scontext2)
 		return -ENOMEM;
-	}
 	memcpy(scontext2, scontext, scontext_len);
 	scontext2[scontext_len] = 0;
 
@@ -1434,11 +1431,8 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
 		/* Save another copy for storing in uninterpreted form */
 		rc = -ENOMEM;
 		str = kstrdup(scontext2, gfp_flags);
-		if (!str) {
-			printk(KERN_ERR "%s: kstrdup failed for \'%s\' with len: %u\n",
-				__func__, scontext2, scontext_len);
+		if (!str)
 			goto out;
-		}
 	}
 
 	read_lock(&policy_rwlock);
@@ -2034,7 +2028,6 @@ int security_load_policy(void *data, size_t len)
 	}
 	newpolicydb = oldpolicydb + 1;
 
-	printk(KERN_ERR "SELinux: security_load_policy, ss_initialized: %d\n",ss_initialized);
 	if (!ss_initialized) {
 		avtab_cache_init();
 		rc = policydb_read(&policydb, fp);
@@ -2105,14 +2098,11 @@ int security_load_policy(void *data, size_t len)
 	}
 
 	/* Clone the SID table. */
-         printk(KERN_ERR "SELinux: security_load_policy, sidtab_shutdown begin \n");
 	sidtab_shutdown(&sidtab);
-        printk(KERN_ERR "SELinux: security_load_policy, sidtab_shutdown end \n");
+
 	rc = sidtab_map(&sidtab, clone_sid, &newsidtab);
-	if (rc) {
-		printk(KERN_ERR "SELinux: sidtab_map failed: %d\n", rc);
+	if (rc)
 		goto err;
-	}
 
 	/*
 	 * Convert the internal representations of contexts
@@ -2130,9 +2120,8 @@ int security_load_policy(void *data, size_t len)
 
 	/* Save the old policydb and SID table to free later. */
 	memcpy(oldpolicydb, &policydb, sizeof(policydb));
-        printk(KERN_ERR "SELinux: security_load_policy, sidtab_set begin \n");
 	sidtab_set(&oldsidtab, &sidtab);
-        printk(KERN_ERR "SELinux: security_load_policy,sidtab_set end \n");
+
 	/* Install the new policydb and SID table. */
 	write_lock_irq(&policy_rwlock);
 	memcpy(&policydb, newpolicydb, sizeof(policydb));
@@ -2165,8 +2154,6 @@ err:
 
 out:
 	kfree(oldpolicydb);
-	printk(KERN_ERR "SELinux: security_load_policy, sidtab.shutdown: %d\n",
-		sidtab.shutdown);
 	return rc;
 }
 

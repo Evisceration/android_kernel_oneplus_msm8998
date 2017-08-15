@@ -178,7 +178,9 @@ extern u64 nr_running_integral(unsigned int cpu);
 #endif
 
 extern void sched_update_nr_prod(int cpu, long delta, bool inc);
-extern void sched_get_nr_running_avg(int *avg, int *iowait_avg, int *big_avg);
+extern void sched_get_nr_running_avg(int *avg, int *iowait_avg, int *big_avg,
+				     unsigned int *max_nr,
+				     unsigned int *big_max_nr);
 
 extern void calc_global_load(unsigned long ticks);
 
@@ -1544,9 +1546,6 @@ struct task_struct {
         //huruihuan add for kill task in D status
 	unsigned int kill_flag;
 	struct timespec ttu;
-
-//xiaoxiaohuan add for fd leak debug
-    bool dump_fd_leak;
 
 #ifdef CONFIG_SMP
 	struct llist_node wake_entry;

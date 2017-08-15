@@ -515,6 +515,12 @@ static int sde_rotator_import_buffer(struct sde_layer_buffer *buffer,
 	if (!input)
 		dir = DMA_FROM_DEVICE;
 
+	if (buffer->plane_count > SDE_ROT_MAX_PLANES) {
+		SDEROT_ERR("buffer plane_count exceeds MAX_PLANE limit:%d\n",
+				buffer->plane_count);
+		return -EINVAL;
+	}
+
 	memset(planes, 0, sizeof(planes));
 
 	for (i = 0; i < buffer->plane_count; i++) {
@@ -615,9 +621,10 @@ static int sde_rotator_secure_session_ctrl(bool enable)
 	if (mdata->wait_for_transition && mdata->secure_session_ctrl &&
 		mdata->callback_request) {
 		ret = mdata->wait_for_transition(mdata->sec_cam_en, enable);
-		if (ret) {
+		if (ret < 0) {
 			SDEROT_ERR("failed Secure wait for transition %d\n",
 				   ret);
+			ret = -EPERM;
 		} else {
 			if (mdata->sec_cam_en ^ enable) {
 				mdata->sec_cam_en = enable;
@@ -1084,6 +1091,8 @@ static int sde_rotator_assign_queue(struct sde_rot_mgr *mgr,
 		if (IS_ERR_OR_NULL(hw)) {
 			SDEROT_ERR("fail to allocate hw\n");
 			ret = PTR_ERR(hw);
+			if (!ret)
+				ret = -EINVAL;
 		} else {
 			queue->hw = hw;
 		}
@@ -2419,6 +2428,7 @@ static int sde_rotator_parse_dt_bus(struct sde_rot_mgr *mgr,
 {
 	int ret = 0, i;
 	int usecases;
+	struct sde_rot_data_type *mdata = sde_rot_get_mdata();
 
 	mgr->data_bus.bus_scale_pdata = msm_bus_cl_get_pdata(dev);
 	if (IS_ERR_OR_NULL(mgr->data_bus.bus_scale_pdata)) {
@@ -2431,12 +2441,16 @@ static int sde_rotator_parse_dt_bus(struct sde_rot_mgr *mgr,
 		}
 	}
 
-	mgr->reg_bus.bus_scale_pdata = &rot_reg_bus_scale_table;
-	usecases = mgr->reg_bus.bus_scale_pdata->num_usecases;
-	for (i = 0; i < usecases; i++) {
-		rot_reg_bus_usecases[i].num_paths = 1;
-		rot_reg_bus_usecases[i].vectors =
-			&rot_reg_bus_vectors[i];
+	if (mdata && mdata->reg_bus_pdata) {
+		mgr->reg_bus.bus_scale_pdata = mdata->reg_bus_pdata;
+	} else {
+		mgr->reg_bus.bus_scale_pdata = &rot_reg_bus_scale_table;
+		usecases = mgr->reg_bus.bus_scale_pdata->num_usecases;
+		for (i = 0; i < usecases; i++) {
+			rot_reg_bus_usecases[i].num_paths = 1;
+			rot_reg_bus_usecases[i].vectors =
+				&rot_reg_bus_vectors[i];
+		}
 	}
 
 	return ret;
